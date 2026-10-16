@@ -4,8 +4,6 @@
 
 Executable version of `../KYC_Pruefprozess.bpmn` on the CIB seven 2.2.0 process engine with Spring Boot 3.5.14 (Java 21). It comes with a web UI for manual testing, a dashboard showing the flow of individual instances and the CIB seven tools (web client, Cockpit, Tasklist, REST API). The engine database is in-memory H2. The web UI is in German.
 
-The web UI, the Laya integration, the DMN rules and `run_demo_cases.py` match the Kogito version in the sibling project `Vertical AI`. The service offers the same REST paths for this.
-
 ## Architecture
 
 ```
@@ -29,11 +27,11 @@ Browser (http://localhost:8080)
 
 | File | Content |
 | --- | --- |
-| `src/main/resources/KYC_Pruefprozess.bpmn` | Process `kyc_review` with `camunda:` extensions; diagram and element IDs as in the Kogito version |
+| `src/main/resources/KYC_Pruefprozess.bpmn` | Process `kyc_review` with `camunda:` extensions |
 | `src/main/resources/KYC_RuleCheck.dmn` | Decision table R1–R5 (`TriggeredRules`), `RuleResult` and `RuleCheck` (both results for the process); R4 = US nexus, R5 = confirmed sanctions hit (rejection) |
 | `src/main/java/de/piu/kyc/LayaAssessmentService.java` | Service task: adds `regelpruefung` (rule check), calls Laya, errors → manual review |
 | `src/main/java/de/piu/kyc/LayaClient.java`, `LayaClientConfig.java` | REST client (`laya.url`, environment variable `LAYA_URL`) |
-| `src/main/java/de/piu/kyc/api/` | Process start, DMN evaluation and task API with the paths of the Kogito version |
+| `src/main/java/de/piu/kyc/api/` | Process start, DMN evaluation and task API for the web UI and `run_demo_cases.py` |
 | `src/main/java/de/piu/kyc/dashboard/` | REST API for the dashboard, read from the engine history |
 | `src/main/java/de/piu/kyc/DemoUsers.java` | Group `kyc-reviewers` with the reviewer `anna` for the Tasklist |
 | `src/main/java/de/piu/kyc/DmnValues.java` | Turns FEEL lists into plain Java lists before they become process variables |
@@ -45,28 +43,24 @@ Browser (http://localhost:8080)
 
 Identifiers in the code are English. The field names in the application (`kunde` = customer, `screening`, …) and the Laya decisions (`keine_manuelle_pruefung` = no manual review, …) stay German: they are part of the dataset schema Laya was trained on.
 
-Deviations from the planning draft (as in the Kogito version):
+Deviations from the planning draft:
 
-- Merging gateways before "Approval", "Rejection" and "Manual review". CIB seven would not need them, but they stay so that the diagram and node log are the same in both versions.
+- Merging gateways before "Approval", "Rejection" and "Manual review". They make visible in the diagram and the node log where the paths join.
 - A loop back "no valid decision" from the decision gateway to the manual review (on `skip` or typos).
 - Technical errors in the LLM check lead to `decision = fehler` (error) and therefore to manual review, as planned.
 - Rule R4 (US nexus) was added after training. `LayaAssessmentService` passes only the trained rules R1–R3 to Laya; R4 forces manual review through the rule result alone.
 - Rule R5 (sanctions screening `bestaetigter_treffer`, confirmed hit) is the only exclusion reason: `rule_result = reject`, rejection without LLM check, `llm_result` stays empty. Demo case K15.
 
-## Differences from the Kogito version
+## Technical notes on CIB seven
 
-| Topic | Kogito 10.2 (Quarkus) | CIB seven 2.2 (Spring Boot) |
-| --- | --- | --- |
-| BPMN extensions | `drools:` attributes, Java conditions | `camunda:` attributes, JUEL conditions (`${rule_result == 'reject'}`) |
-| DMN call | Business rule task with namespace and model, returns all decisions | Business rule task with `decisionRef="RuleCheck"`; an extra decision `RuleCheck` combines `RuleResult` and `TriggeredRules` |
-| DMN table | Result is named after the decision | Dependent decisions see the result under the output column name; the column is therefore called `TriggeredRules` |
-| Service task | Java interface in the BPMN | Expression on a Spring bean |
-| User task | Kogito user task API | Engine `TaskService`; form fields `manual_decision`, `manual_comment` for the Tasklist |
-| REST endpoints | Generated from the process | Own controllers with the same paths; additionally `/engine-rest` |
-| Dashboard history | Own event listener, because Kogito forgets finished instances immediately | Engine history (history level `full`) |
-| Variables | Java objects in memory | JSON (Spin) in H2, readable in Cockpit and the REST API |
-| Start | `java -jar target/quarkus-app/quarkus-run.jar` | Run `target/kyc-prozess.jar` extracted, see below |
-| Health | `/q/health/ready` | `/actuator/health/readiness` |
+- BPMN: `camunda:` attributes, conditions in JUEL (`${rule_result == 'reject'}`).
+- DMN call: business rule task with `decisionRef="RuleCheck"`; the extra decision `RuleCheck` combines `RuleResult` and `TriggeredRules`. Dependent decisions see a result under the output column name, so the column of the rule table is called `TriggeredRules`.
+- Service task: expression on a Spring bean (`${layaAssessmentService.assess(...)}`).
+- User task: engine `TaskService`; form fields `manual_decision`, `manual_comment` for the Tasklist.
+- REST: own controllers for the web UI and `run_demo_cases.py`, plus `/engine-rest`.
+- Dashboard: reads the engine history (history level `full`).
+- Variables: JSON (Spin) in H2, readable in Cockpit and the REST API.
+- Health: `/actuator/health/readiness`.
 
 ## Starting
 
@@ -122,7 +116,7 @@ curl -X POST localhost:8080/kyc_review -H 'Content-Type: application/json' -d '{
 
 The response contains `id`, `rule_result`, `triggered_rules` and `llm_result` (`null` on rejection by R5, because Laya is not called). After automatic approval and after rejection by rules, the instance is finished (`GET /kyc_review/{id}` → 404; the history remains under `/api/dashboard/instances/{id}`).
 
-Manual review (same interface as the Kogito version, internally `TaskService`):
+Manual review (internally `TaskService`):
 
 ```bash
 Q='user=anna&group=kyc-reviewers'

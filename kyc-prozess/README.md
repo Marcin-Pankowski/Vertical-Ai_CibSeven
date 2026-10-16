@@ -4,8 +4,6 @@
 
 Ausführbare Fassung von `../KYC_Pruefprozess.bpmn` auf der Prozess-Engine CIB seven 2.2.0 mit Spring Boot 3.5.14 (Java 21). Dazu gehören eine Weboberfläche zum manuellen Testen, ein Dashboard für den Ablauf einzelner Instanzen und die Werkzeuge von CIB seven (Webclient, Cockpit, Tasklist, REST-API). Die Engine-Datenbank ist H2 im Arbeitsspeicher.
 
-Die Weboberfläche, die Laya-Anbindung, die DMN-Regeln und `run_demo_cases.py` entsprechen der Kogito-Fassung im Schwesterprojekt `Vertical AI`. Der Dienst bietet dafür dieselben REST-Pfade an.
-
 ## Architektur
 
 ```
@@ -29,11 +27,11 @@ Browser (http://localhost:8080)
 
 | Datei | Inhalt |
 | --- | --- |
-| `src/main/resources/KYC_Pruefprozess.bpmn` | Prozess `kyc_review` mit `camunda:`-Erweiterungen; Diagramm und Element-IDs wie in der Kogito-Fassung |
+| `src/main/resources/KYC_Pruefprozess.bpmn` | Prozess `kyc_review` mit `camunda:`-Erweiterungen |
 | `src/main/resources/KYC_RuleCheck.dmn` | Entscheidungstabelle R1–R5 (`TriggeredRules`), `RuleResult` und `RuleCheck` (beide Ergebnisse für den Prozess); R4 = USA-Bezug, R5 = bestätigter Sanktionstreffer (Ablehnung) |
 | `src/main/java/de/piu/kyc/LayaAssessmentService.java` | Service-Task: ergänzt `regelpruefung`, ruft Laya, Fehler → manuelle Prüfung |
 | `src/main/java/de/piu/kyc/LayaClient.java`, `LayaClientConfig.java` | REST-Client (`laya.url`, Umgebungsvariable `LAYA_URL`) |
-| `src/main/java/de/piu/kyc/api/` | Prozessstart, DMN-Auswertung und Aufgaben-API mit den Pfaden der Kogito-Fassung |
+| `src/main/java/de/piu/kyc/api/` | Prozessstart, DMN-Auswertung und Aufgaben-API für Weboberfläche und `run_demo_cases.py` |
 | `src/main/java/de/piu/kyc/dashboard/` | REST-API für das Dashboard, gelesen aus der Historie der Engine |
 | `src/main/java/de/piu/kyc/DemoUsers.java` | Gruppe `kyc-reviewers` mit der Prüferin `anna` für die Tasklist |
 | `src/main/java/de/piu/kyc/DmnValues.java` | Wandelt FEEL-Listen in normale Java-Listen, bevor sie Prozessvariable werden |
@@ -45,28 +43,24 @@ Browser (http://localhost:8080)
 
 Bezeichner im Code sind englisch. Die Feldnamen im Antrag (`kunde`, `screening`, …) und die Laya-Entscheidungen (`keine_manuelle_pruefung`, …) bleiben deutsch: Sie sind Teil des Datensatzschemas, mit dem Laya trainiert wurde.
 
-Abweichungen vom Planungsentwurf (wie in der Kogito-Fassung):
+Abweichungen vom Planungsentwurf:
 
-- Zusammenführende Gateways vor „Freigabe“, „Ablehnung“ und „Manuelle Prüfung“. CIB seven bräuchte sie nicht, sie bleiben aber, damit Diagramm und Knotenprotokoll in beiden Fassungen gleich sind.
+- Zusammenführende Gateways vor „Freigabe“, „Ablehnung“ und „Manuelle Prüfung“. Sie machen im Diagramm und im Knotenprotokoll sichtbar, wo die Pfade zusammenlaufen.
 - Rückweg „keine gültige Entscheidung“ vom Entscheidungs-Gateway zur manuellen Prüfung (bei `skip` oder Tippfehlern).
 - Technische Fehler der LLM-Prüfung führen zu `decision = fehler` und damit zur manuellen Prüfung, wie in der Planung vorgesehen.
 - Regel R4 (USA-Bezug) wurde nach dem Training ergänzt. `LayaAssessmentService` gibt nur die trainierten Regeln R1–R3 an Laya weiter; R4 erzwingt die manuelle Prüfung allein über das Regelergebnis.
 - Regel R5 (Sanktionsscreening `bestaetigter_treffer`) ist der einzige Ausschlussgrund: `rule_result = reject`, Ablehnung ohne LLM-Prüfung, `llm_result` bleibt leer. Demo-Fall K15.
 
-## Unterschiede zur Kogito-Fassung
+## Technische Hinweise zu CIB seven
 
-| Thema | Kogito 10.2 (Quarkus) | CIB seven 2.2 (Spring Boot) |
-| --- | --- | --- |
-| BPMN-Erweiterungen | `drools:`-Attribute, Java-Bedingungen | `camunda:`-Attribute, JUEL-Bedingungen (`${rule_result == 'reject'}`) |
-| DMN-Aufruf | Business-Rule-Task mit Namespace und Modell, liefert alle Entscheidungen | Business-Rule-Task mit `decisionRef="RuleCheck"`; eine zusätzliche Entscheidung `RuleCheck` fasst `RuleResult` und `TriggeredRules` zusammen |
-| DMN-Tabelle | Ergebnis heißt wie die Entscheidung | Abhängige Entscheidungen sehen das Ergebnis unter dem Namen der Ausgabespalte; die Spalte heißt deshalb `TriggeredRules` |
-| Service-Task | Java-Interface im BPMN | Ausdruck auf eine Spring-Bean |
-| User Task | Kogito-User-Task-API | `TaskService` der Engine; Formularfelder `manual_decision`, `manual_comment` für die Tasklist |
-| REST-Endpunkte | vom Prozess generiert | eigene Controller mit denselben Pfaden; zusätzlich `/engine-rest` |
-| Verlauf fürs Dashboard | eigener Event-Listener, weil Kogito beendete Instanzen sofort vergisst | Historie der Engine (History-Level `full`) |
-| Variablen | Java-Objekte im Speicher | JSON (Spin) in H2, lesbar in Cockpit und REST-API |
-| Start | `java -jar target/quarkus-app/quarkus-run.jar` | `target/kyc-prozess.jar` entpackt starten, siehe unten |
-| Health | `/q/health/ready` | `/actuator/health/readiness` |
+- BPMN: `camunda:`-Attribute, Bedingungen in JUEL (`${rule_result == 'reject'}`).
+- DMN-Aufruf: Business-Rule-Task mit `decisionRef="RuleCheck"`; die zusätzliche Entscheidung `RuleCheck` fasst `RuleResult` und `TriggeredRules` zusammen. Abhängige Entscheidungen sehen ein Ergebnis unter dem Namen der Ausgabespalte, deshalb heißt die Spalte der Regeltabelle `TriggeredRules`.
+- Service-Task: Ausdruck auf eine Spring-Bean (`${layaAssessmentService.assess(...)}`).
+- User Task: `TaskService` der Engine; Formularfelder `manual_decision`, `manual_comment` für die Tasklist.
+- REST: eigene Controller für Weboberfläche und `run_demo_cases.py`, zusätzlich `/engine-rest`.
+- Dashboard: liest die Historie der Engine (History-Level `full`).
+- Variablen: JSON (Spin) in H2, lesbar in Cockpit und REST-API.
+- Health: `/actuator/health/readiness`.
 
 ## Starten
 
@@ -122,7 +116,7 @@ curl -X POST localhost:8080/kyc_review -H 'Content-Type: application/json' -d '{
 
 Die Antwort enthält `id`, `rule_result`, `triggered_rules` und `llm_result` (bei Ablehnung durch R5 `null`, weil Laya nicht aufgerufen wird). Bei automatischer Freigabe und bei Ablehnung durch Regeln ist die Instanz danach beendet (`GET /kyc_review/{id}` → 404; Verlauf weiter unter `/api/dashboard/instances/{id}`).
 
-Manuelle Prüfung (Schnittstelle wie in der Kogito-Fassung, intern `TaskService`):
+Manuelle Prüfung (intern `TaskService`):
 
 ```bash
 Q='user=anna&group=kyc-reviewers'

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Manuelle Prüfung über die Aufgabenschnittstelle der Kogito-Fassung (claim, complete, skip),
+ * Manuelle Prüfung über eine einfache Aufgabenschnittstelle (claim, complete, skip),
  * umgesetzt mit dem TaskService der Engine. Die Ergebnisse {@code decision} und {@code comment}
  * landen in den Prozessvariablen {@code manual_decision} und {@code manual_comment}, wie bei einer
  * Bearbeitung in der Tasklist von CIB seven.
@@ -77,7 +77,7 @@ public class UserTaskController {
         return variables;
     }
 
-    /** Aufbau wie in Kogito 10: id, status.name, actualOwner, processInfo, inputs. */
+    /** Aufbau für die Weboberfläche: id, status.name, actualOwner, processInfo, inputs. */
     private static Map<String, Object> view(Task task, Map<String, Object> variables) {
         Map<String, Object> view = new LinkedHashMap<>();
         view.put("id", task.getId());

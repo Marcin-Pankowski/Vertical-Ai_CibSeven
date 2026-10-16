@@ -54,7 +54,7 @@ POLICY_TEXT = (
 )
 
 # Feste Feldreihenfolge je Objektpfad, wie in allen Trainingsdaten. Das Modell reagiert stark auf
-# die Reihenfolge der Zeilen; JSON-Objekte aus anderen Systemen (z. B. Kogito) dürfen ihre Felder
+# die Reihenfolge der Zeilen; JSON-Objekte aus anderen Systemen (z. B. der Prozess-Engine) dürfen ihre Felder
 # daher nicht in eigener Reihenfolge durchreichen. Unbekannte Felder folgen alphabetisch.
 FIELD_ORDER = {
     "": ["prozessphase", "identitaetspruefung", "kunde", "beschaeftigung",

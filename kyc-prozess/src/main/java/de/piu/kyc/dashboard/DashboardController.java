@@ -28,7 +28,7 @@ import de.piu.kyc.api.ProcessVariables;
 
 /**
  * Daten für Webinterface und Dashboard. Quelle ist die Historie der Engine (History-Level full):
- * Sie behält auch beendete Instanzen, ein eigenes Protokoll wie in der Kogito-Fassung ist nicht nötig.
+ * Sie behält auch beendete Instanzen, ein eigenes Protokoll ist nicht nötig.
  */
 @RestController
 @RequestMapping(path = "/api/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)

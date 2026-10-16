@@ -72,7 +72,7 @@ Das Modell hat an dieser Stelle die Formulierung gelernt, nicht das Fehlen des N
 
 ## Empfindlichkeit für die Feldreihenfolge
 
-Bei der Anbindung an Kogito fiel auf, dass das Modell stark auf die Reihenfolge der Eingabezeilen reagiert. Mit denselben Angaben in zufällig gemischter JSON-Feldreihenfolge wechselte die Entscheidung bei 8 der 11 Demo-Fälle in mindestens einer von drei Varianten; K03 wäre dann automatisch freigegeben worden. Alle Trainingsfälle haben dieselbe Feldreihenfolge, das Modell hat also auch die Position der Zeilen gelernt.
+Bei der Anbindung an die Prozess-Engine fiel auf, dass das Modell stark auf die Reihenfolge der Eingabezeilen reagiert. Mit denselben Angaben in zufällig gemischter JSON-Feldreihenfolge wechselte die Entscheidung bei 8 der 11 Demo-Fälle in mindestens einer von drei Varianten; K03 wäre dann automatisch freigegeben worden. Alle Trainingsfälle haben dieselbe Feldreihenfolge, das Modell hat also auch die Position der Zeilen gelernt.
 
 Behoben ist das in der Eingabedarstellung (`laya_kyc/kyc_data.py`, `FIELD_ORDER`): Die Zeilen werden unabhängig von der Reihenfolge des eingehenden JSON immer in der Reihenfolge der Trainingsdaten ausgegeben. Für alle 5.000 Trainingsfälle und K01–K11 ist die Darstellung unverändert; die Kennzahlen oben bleiben gültig. Nach der Korrektur ergeben 55 gemischte Varianten der Demo-Fälle keine Abweichung mehr. Ein robusteres Modell würde mit wechselnder Feldreihenfolge trainiert.
 
@@ -108,7 +108,7 @@ Die unveränderten Testfälle waren bei v1 fehlerfrei. Deshalb fiel die Abkürzu
 
 Demo-Fälle K01–K14 (Prozess mit Regeln R1–R4): v1 11 von 14, v2 13 von 14. v2 behebt K12 (Tim Uphaus) und K13 (Karl Jones) und gibt K14 (Marcin Pankowski, nur Arbeitgeber an der Reeperbahn) weiterhin frei. **K10 bleibt falsch**: Die Abkürzung „Schenkung meiner Eltern“ wurde nicht entkoppelt.
 
-Nachtrag 5. Oktober 2026: Mit K15 (bestätigter Sanktionstreffer, Regel R5) gibt es 15 Demo-Fälle. K15 wird im Prozess durch R5 abgelehnt, bevor Laya aufgerufen wird; das Modell spielt dafür keine Rolle. Ende-zu-Ende mit v2 (zuerst über Kogito, jetzt über CIB seven): 14 von 15, falsch ist weiterhin nur K10.
+Nachtrag 5. Oktober 2026: Mit K15 (bestätigter Sanktionstreffer, Regel R5) gibt es 15 Demo-Fälle. K15 wird im Prozess durch R5 abgelehnt, bevor Laya aufgerufen wird; das Modell spielt dafür keine Rolle. Ende-zu-Ende über CIB seven mit v2: 14 von 15, falsch ist weiterhin nur K10.
 
 Die Lehre für den Vortrag: Ein fehlerfreier Test auf vorlagenbasierten Daten beweist wenig. Gezielte Gegenproben, die genau ein Merkmal ändern, zeigen, worauf das Modell tatsächlich reagiert. Entkoppelte Trainingsdaten beheben eine Abkürzung, aber nur die, die man gefunden hat.
 

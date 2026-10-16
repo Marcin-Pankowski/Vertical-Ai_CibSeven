@@ -84,7 +84,7 @@
       <bpmn2:outgoing>Flow_Manual_Retry</bpmn2:outgoing>
     </bpmn2:exclusiveGateway>
 
-    <!-- Zusammenführung per Gateway wie in der Kogito-Fassung, damit Diagramm und Knotenprotokoll gleich bleiben -->
+    <!-- Zusammenführung per Gateway, damit Diagramm und Knotenprotokoll zeigen, wo die Pfade zusammenlaufen -->
     <bpmn2:exclusiveGateway id="Gateway_Join_Approve">
       <bpmn2:incoming>Flow_LLM_Approve</bpmn2:incoming>
       <bpmn2:incoming>Flow_Manual_Approve</bpmn2:incoming>

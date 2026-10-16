@@ -2,7 +2,7 @@
 
 *English version: [README.en.md](README.en.md)*
 
-Vortrag und Demo: Ein KYC-Prüfprozess bei der Kontoeröffnung kombiniert DMN-Regeln, das lokal trainierte Entscheidungsmodell Laya Multilingual und die manuelle Prüfung als User Task. Der Prozess läuft auf der Prozess-Engine CIB seven 2.2 (Spring Boot). Eine Fassung derselben Demo mit Kogito liegt im Schwesterprojekt `Vertical AI`. Alle Daten sind vollständig synthetisch, die Richtlinie ist fiktiv.
+Vortrag und Demo: Ein KYC-Prüfprozess bei der Kontoeröffnung kombiniert DMN-Regeln, das lokal trainierte Entscheidungsmodell Laya Multilingual und die manuelle Prüfung als User Task. Der Prozess läuft auf der Prozess-Engine CIB seven 2.2 (Spring Boot). Alle Daten sind vollständig synthetisch, die Richtlinie ist fiktiv.
 
 ## Inhalt
 

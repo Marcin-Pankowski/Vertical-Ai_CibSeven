@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Prozessstart und DMN-Auswertung mit denselben Pfaden und Antworten wie die Kogito-Fassung,
- * damit Weboberfläche und run_demo_cases.py unverändert bleiben. Die vollständige REST-API der
+ * Prozessstart und DMN-Auswertung für Weboberfläche und run_demo_cases.py. Die vollständige REST-API der
  * Engine liegt zusätzlich unter /engine-rest.
  */
 @RestController

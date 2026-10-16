@@ -74,7 +74,7 @@ Here the model has learned the wording, not the missing proof. The displayed con
 
 ## Sensitivity to field order
 
-When connecting the model to Kogito, we noticed that it reacts strongly to the order of the input lines. With the same information in randomly shuffled JSON field order, the decision changed for 8 of the 11 demo cases in at least one of three variants; K03 would then have been approved automatically. All training cases have the same field order, so the model has also learned the position of the lines.
+When connecting the model to the process engine, we noticed that it reacts strongly to the order of the input lines. With the same information in randomly shuffled JSON field order, the decision changed for 8 of the 11 demo cases in at least one of three variants; K03 would then have been approved automatically. All training cases have the same field order, so the model has also learned the position of the lines.
 
 This is fixed in the input rendering (`laya_kyc/kyc_data.py`, `FIELD_ORDER`): the lines are always output in the order of the training data, regardless of the order of the incoming JSON. For all 5,000 training cases and K01–K11 the rendering is unchanged; the figures above remain valid. After the fix, 55 shuffled variants of the demo cases show no deviation. A more robust model would be trained with varying field order.
 
@@ -110,7 +110,7 @@ The unchanged test cases were error-free with v1. That is why the shortcut did n
 
 Demo cases K01–K14 (process with rules R1–R4): v1 11 of 14, v2 13 of 14. v2 fixes K12 (Tim Uphaus) and K13 (Karl Jones) and still approves K14 (Marcin Pankowski, only the employer on the Reeperbahn). **K10 stays wrong**: the "gift from my parents" shortcut was not decoupled.
 
-Addendum 5 October 2026: with K15 (confirmed sanctions hit, rule R5) there are 15 demo cases. K15 is rejected by R5 in the process before Laya is called; the model plays no role. End to end with v2 (first via Kogito, now via CIB seven): 14 of 15, only K10 is still wrong.
+Addendum 5 October 2026: with K15 (confirmed sanctions hit, rule R5) there are 15 demo cases. K15 is rejected by R5 in the process before Laya is called; the model plays no role. End to end via CIB seven with v2: 14 of 15, only K10 is still wrong.
 
 The lesson for the talk: an error-free test on template-based data proves little. Targeted counterfactual probes that change exactly one feature show what the model actually reacts to. Decoupled training data fixes a shortcut, but only the one you have found.
 

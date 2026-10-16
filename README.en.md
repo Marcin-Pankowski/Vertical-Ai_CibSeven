@@ -2,7 +2,7 @@
 
 *Deutsche Fassung: [README.md](README.md)*
 
-Talk and demo: a KYC review process at bank account opening combines DMN rules, the locally trained decision model Laya Multilingual and a manual review as a user task. The process runs on the CIB seven 2.2 process engine (Spring Boot). A version of the same demo on Kogito lives in the sibling project `Vertical AI`. All data is fully synthetic and the bank policy is fictional.
+Talk and demo: a KYC review process at bank account opening combines DMN rules, the locally trained decision model Laya Multilingual and a manual review as a user task. The process runs on the CIB seven 2.2 process engine (Spring Boot). All data is fully synthetic and the bank policy is fictional.
 
 Field names and values in the dataset (`kunde`, `eingabe`, `keine_manuelle_pruefung`, …) are German, because they are part of the schema the model was trained on. The English documents explain them where they appear.
 
