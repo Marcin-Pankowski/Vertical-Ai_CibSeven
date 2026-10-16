@@ -787,11 +787,11 @@ async function refreshServiceStatus() {
   };
   try {
     const status = await api('/api/dashboard/status');
-    set('#status-kogito', true, 'Kogito erreichbar');
+    set('#status-engine', true, 'CIB seven erreichbar');
     const laya = status.laya || {};
     set('#status-laya', laya.status === 'ok', laya.status === 'ok' ? `Laya: ${laya.device}` : `Laya: ${laya.error || laya.status}`);
   } catch (e) {
-    set('#status-kogito', false, e.message);
+    set('#status-engine', false, e.message);
     set('#status-laya', false, 'unbekannt');
   }
 }

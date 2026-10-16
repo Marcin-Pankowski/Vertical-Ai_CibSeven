@@ -18,22 +18,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 
-@QuarkusTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class KycProcessTest {
 
     private static final String REVIEWER = "user=reviewer&group=kyc-reviewers";
 
-    @InjectMock
-    @RestClient
+    @LocalServerPort
+    int port;
+
+    @MockitoBean
     LayaClient laya;
+
+    @BeforeEach
+    void setUp() {
+        RestAssured.port = port;
+    }
 
     @Test
     void greenRulesAndNoLlmFindingAreApprovedAutomatically() {

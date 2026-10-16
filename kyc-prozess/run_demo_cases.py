@@ -1,6 +1,6 @@
-"""Ende-zu-Ende-Demo: startet für jeden Demo-Fall (K01–K15) eine Prozessinstanz im Kogito-Dienst.
+"""Ende-zu-Ende-Demo: startet für jeden Demo-Fall (K01–K15) eine Prozessinstanz im CIB-seven-Prozessdienst.
 
-Voraussetzung: Laya-Dienst (Port 8000) und Kogito-Dienst (Port 8080) laufen.
+Voraussetzung: Laya-Dienst (Port 8000) und CIB-seven-Prozessdienst (Port 8080) laufen.
 Fälle mit manueller Prüfung bleiben als offene Aufgabe der Gruppe kyc-reviewers stehen.
 
     python3 run_demo_cases.py
@@ -12,13 +12,13 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-KOGITO_URL = "http://localhost:8080"
+PROCESS_URL = "http://localhost:8080"
 REVIEWER = "user=anna&group=kyc-reviewers"
 CASES_FILE = Path(__file__).resolve().parent.parent / "laya_kyc" / "demo_cases.json"
 
 
 def http(method, path, payload=None):
-    request = urllib.request.Request(KOGITO_URL + path, method=method,
+    request = urllib.request.Request(PROCESS_URL + path, method=method,
                                      data=json.dumps(payload).encode() if payload is not None else None,
                                      headers={"Content-Type": "application/json"})
     try:
@@ -61,7 +61,7 @@ def main():
 
     _, tasks = http("GET", f"/usertasks/instance?{REVIEWER}")
     open_tasks = [t for t in tasks if t["status"]["name"] in ("Ready", "Reserved")]
-    print(f"Offene manuelle Prüfungen: {len(open_tasks)}  (GET {KOGITO_URL}/usertasks/instance?{REVIEWER})")
+    print(f"Offene manuelle Prüfungen: {len(open_tasks)}  (GET {PROCESS_URL}/usertasks/instance?{REVIEWER})")
     if args.decide:
         for task in open_tasks:
             url = f"/usertasks/instance/{task['id']}/transition?{REVIEWER}"

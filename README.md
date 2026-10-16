@@ -1,6 +1,8 @@
 # Vertical AI: KYC-Prüfung mit BPMN, Regeln und einem lokal trainierten Entscheidungsmodell
 
-Vortrag und Demo: Ein KYC-Prüfprozess bei der Kontoeröffnung kombiniert DMN-Regeln, das lokal trainierte Entscheidungsmodell Laya Multilingual und die manuelle Prüfung als User Task. Der Prozess läuft als Kogito-Microservice. Alle Daten sind vollständig synthetisch, die Richtlinie ist fiktiv.
+*English version: [README.en.md](README.en.md)*
+
+Vortrag und Demo: Ein KYC-Prüfprozess bei der Kontoeröffnung kombiniert DMN-Regeln, das lokal trainierte Entscheidungsmodell Laya Multilingual und die manuelle Prüfung als User Task. Der Prozess läuft auf der Prozess-Engine CIB seven 2.2 (Spring Boot). Eine Fassung derselben Demo mit Kogito liegt im Schwesterprojekt `Vertical AI`. Alle Daten sind vollständig synthetisch, die Richtlinie ist fiktiv.
 
 ## Inhalt
 
@@ -14,22 +16,22 @@ Vortrag und Demo: Ein KYC-Prüfprozess bei der Kontoeröffnung kombiniert DMN-Re
 | [KYC_Trainingsdaten_README.md](KYC_Trainingsdaten_README.md) | Synthetische Trainingsdaten (5.000 bzw. 6.000 Fälle) |
 | `KYC_Pruefprozess.bpmn` | Fachlicher Prozessentwurf |
 | `laya_kyc/` | Training, Auswertung, Gegenproben, Laya-REST-Dienst |
-| `kyc-prozess/` | Kogito-Prozessdienst mit Weboberfläche, siehe [kyc-prozess/README.md](kyc-prozess/README.md) |
+| `kyc-prozess/` | CIB-seven-Prozessdienst mit Weboberfläche, siehe [kyc-prozess/README.md](kyc-prozess/README.md) |
 | `praesentation/` | Präsentation `Vertical_AI_KYC.pptx` mit Bildern und Logos |
 
 ## Klonen und starten
 
 ```bash
-git clone https://github.com/Marcin-Pankowski/BPMN-Vertival-AI.git
-cd BPMN-Vertival-AI
+git clone https://github.com/Marcin-Pankowski/Vertical-Ai_CibSeven.git
+cd Vertical-Ai_CibSeven
 ./start_demo.sh
 ```
 
-Beim ersten Start lädt `start_demo.sh` das Demo-Modell v2 als ZIP aus dem Release [modelle](https://github.com/Marcin-Pankowski/BPMN-Vertival-AI/releases/tag/modelle) (ca. 600 MB), legt die Python-Umgebung `.venv/` aus `requirements.txt` an (lädt PyTorch, einige Minuten) und baut den Prozessdienst mit Maven (Java 21). Details: [Quickstart.md](Quickstart.md).
+Beim ersten Start lädt `start_demo.sh` das Demo-Modell v2 als ZIP aus dem Release [modelle](https://github.com/Marcin-Pankowski/Vertical-Ai_CibSeven/releases/tag/modelle) (ca. 600 MB), legt die Python-Umgebung `.venv/` aus `requirements.txt` an (lädt PyTorch, einige Minuten) und baut den Prozessdienst mit Maven (Java 21). Details: [Quickstart.md](Quickstart.md).
 
 ## Modelle
 
-Die Modelle sind zu groß für Git und liegen als ZIP im Release [modelle](https://github.com/Marcin-Pankowski/BPMN-Vertival-AI/releases/tag/modelle). Im Projektordner entpacken (`unzip <datei>.zip`), sie landen unter `modelle/`.
+Die Modelle sind zu groß für Git und liegen als ZIP im Release [modelle](https://github.com/Marcin-Pankowski/Vertical-Ai_CibSeven/releases/tag/modelle). Im Projektordner entpacken (`unzip <datei>.zip`), sie landen unter `modelle/`.
 
 | ZIP | Inhalt | Nötig für |
 | --- | --- | --- |

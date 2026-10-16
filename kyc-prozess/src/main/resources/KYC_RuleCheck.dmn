@@ -3,19 +3,18 @@
                  xmlns:dmndi="https://www.omg.org/spec/DMN/20230324/DMNDI/"
                  xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
                  xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
-                 xmlns:feel="https://www.omg.org/spec/DMN/20230324/FEEL/"
                  id="KYC_RuleCheck"
                  name="KYC_RuleCheck"
                  namespace="https://example.org/kyc/rule-check">
-  <dmn:description>Fünf Demo-Regeln der fiktiven Richtlinie. R1–R4 erzeugen manuellen Prüfbedarf; R5 (bestätigter Sanktionstreffer) ist ein Ausschlussgrund und führt zur Ablehnung ohne LLM-Prüfung. Die Feldnamen im Antrag folgen dem Datensatzschema.</dmn:description>
+  <dmn:description>Fünf Demo-Regeln der fiktiven Richtlinie. R1–R4 erzeugen manuellen Prüfbedarf; R5 (bestätigter Sanktionstreffer) ist ein Ausschlussgrund und führt zur Ablehnung ohne LLM-Prüfung. Die Feldnamen im Antrag folgen dem Datensatzschema. Der Prozess ruft RuleCheck auf, das beide Teilergebnisse zusammenfasst.</dmn:description>
 
   <dmn:inputData id="Input_Application" name="Application">
     <dmn:description>KYC-Antragsdaten (Schema KYC_Trainingsdaten.schema.json, Feld eingabe)</dmn:description>
-    <dmn:variable id="Var_Application" name="Application" typeRef="Any"/>
+    <dmn:variable id="Var_Application" name="Application"/>
   </dmn:inputData>
 
-  <dmn:decision id="Decision_TriggeredRules" name="TriggeredRules">
-    <dmn:variable id="Var_TriggeredRules" name="TriggeredRules" typeRef="Any"/>
+  <dmn:decision id="TriggeredRules" name="TriggeredRules">
+    <dmn:variable id="Var_TriggeredRules" name="TriggeredRules"/>
     <dmn:informationRequirement id="IR_TriggeredRules_Application">
       <dmn:requiredInput href="#Input_Application"/>
     </dmn:informationRequirement>
@@ -48,7 +47,7 @@ or (if Application.kunde.auslandsadressen = null then false
     else some address in Application.kunde.auslandsadressen satisfies address.land = "US")</dmn:text>
         </dmn:inputExpression>
       </dmn:input>
-      <dmn:output id="Out_Rule" name="Rule" typeRef="string"/>
+      <dmn:output id="Out_Rule" name="TriggeredRules" typeRef="string"/>
       <dmn:annotation name="Description"/>
       <dmn:rule id="Rule_R1">
         <dmn:inputEntry id="R1_1"><dmn:text>"Nein"</dmn:text></dmn:inputEntry>
@@ -93,11 +92,11 @@ or (if Application.kunde.auslandsadressen = null then false
     </dmn:decisionTable>
   </dmn:decision>
 
-  <dmn:decision id="Decision_RuleResult" name="RuleResult">
+  <dmn:decision id="RuleResult" name="RuleResult">
     <dmn:description>reject: Ausschlussgrund R5 liegt vor; review: mindestens eine andere Regel verlangt manuelle Prüfung; green: keine Regel ausgelöst.</dmn:description>
     <dmn:variable id="Var_RuleResult" name="RuleResult" typeRef="string"/>
     <dmn:informationRequirement id="IR_RuleResult_TriggeredRules">
-      <dmn:requiredDecision href="#Decision_TriggeredRules"/>
+      <dmn:requiredDecision href="#TriggeredRules"/>
     </dmn:informationRequirement>
     <dmn:literalExpression id="Expr_RuleResult">
       <dmn:text>if list contains(TriggeredRules, "R5") then "reject"
@@ -106,15 +105,29 @@ else "green"</dmn:text>
     </dmn:literalExpression>
   </dmn:decision>
 
+  <dmn:decision id="RuleCheck" name="RuleCheck">
+    <dmn:description>Gesamtergebnis für den Prozess: RuleResult und TriggeredRules in einem Kontext. Eine Business-Rule-Task der Engine übernimmt nur das Ergebnis der aufgerufenen Entscheidung, nicht das der Teilentscheidungen. Ohne Treffer liefert die COLLECT-Tabelle null, der Prozess bekommt dann eine leere Liste.</dmn:description>
+    <dmn:variable id="Var_RuleCheck" name="RuleCheck"/>
+    <dmn:informationRequirement id="IR_RuleCheck_RuleResult">
+      <dmn:requiredDecision href="#RuleResult"/>
+    </dmn:informationRequirement>
+    <dmn:informationRequirement id="IR_RuleCheck_TriggeredRules">
+      <dmn:requiredDecision href="#TriggeredRules"/>
+    </dmn:informationRequirement>
+    <dmn:literalExpression id="Expr_RuleCheck">
+      <dmn:text>{RuleResult: RuleResult, TriggeredRules: if TriggeredRules = null then [] else TriggeredRules}</dmn:text>
+    </dmn:literalExpression>
+  </dmn:decision>
+
   <dmndi:DMNDI>
     <dmndi:DMNDiagram id="Diagram_RuleCheck" name="KYC_RuleCheck">
       <dmndi:DMNShape id="Shape_Application" dmnElementRef="Input_Application">
         <dc:Bounds x="80" y="320" width="160" height="60"/>
       </dmndi:DMNShape>
-      <dmndi:DMNShape id="Shape_TriggeredRules" dmnElementRef="Decision_TriggeredRules">
+      <dmndi:DMNShape id="Shape_TriggeredRules" dmnElementRef="TriggeredRules">
         <dc:Bounds x="80" y="180" width="160" height="60"/>
       </dmndi:DMNShape>
-      <dmndi:DMNShape id="Shape_RuleResult" dmnElementRef="Decision_RuleResult">
+      <dmndi:DMNShape id="Shape_RuleResult" dmnElementRef="RuleResult">
         <dc:Bounds x="80" y="40" width="160" height="60"/>
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="Edge_Application_TriggeredRules" dmnElementRef="IR_TriggeredRules_Application">
@@ -124,6 +137,18 @@ else "green"</dmn:text>
       <dmndi:DMNEdge id="Edge_TriggeredRules_RuleResult" dmnElementRef="IR_RuleResult_TriggeredRules">
         <di:waypoint x="160" y="180"/>
         <di:waypoint x="160" y="100"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNShape id="Shape_RuleCheck" dmnElementRef="RuleCheck">
+        <dc:Bounds x="320" y="40" width="160" height="60"/>
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="Edge_RuleResult_RuleCheck" dmnElementRef="IR_RuleCheck_RuleResult">
+        <di:waypoint x="240" y="70"/>
+        <di:waypoint x="320" y="70"/>
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="Edge_TriggeredRules_RuleCheck" dmnElementRef="IR_RuleCheck_TriggeredRules">
+        <di:waypoint x="240" y="210"/>
+        <di:waypoint x="400" y="210"/>
+        <di:waypoint x="400" y="100"/>
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

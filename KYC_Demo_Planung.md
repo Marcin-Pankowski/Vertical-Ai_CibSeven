@@ -1,8 +1,10 @@
 # Planung: KYC mit Regeln, LLM und manueller Prüfung
 
+*English version: [KYC_Demo_Planung.en.md](KYC_Demo_Planung.en.md)*
+
 Stand: 3. Oktober 2026, aktualisiert am 5. Oktober 2026 (Regel R5, Prüffälle K12–K15). Ziel: 30 Minuten Vortrag und Demo, anschließend 15 Minuten Fragerunde.
 
-Die Implementierung wurde freigegeben; Training, Auswertung und Demo-Skripte liegen in `laya_kyc/`, die Ergebnisse in KYC_Trainingsergebnisse.md. Der Prozess läuft als Kogito-10.2.0-Microservice in `kyc-prozess/` (Regeln als DMN, Laya als REST-Dienst, manuelle Prüfung als User Task). Die BPMN-Datei ist ein fachlicher Prozessentwurf. Die nachfolgenden Regeln und Fallbewertungen beschreiben eine fiktive Bankrichtlinie für die Demo; sie sind keine vollständige Abbildung regulatorischer Anforderungen.
+Die Implementierung wurde freigegeben; Training, Auswertung und Demo-Skripte liegen in `laya_kyc/`, die Ergebnisse in KYC_Trainingsergebnisse.md. Der Prozess läuft auf CIB seven 2.2.0 (Spring Boot) in `kyc-prozess/` (Regeln als DMN, Laya als REST-Dienst, manuelle Prüfung als User Task). Die BPMN-Datei ist ein fachlicher Prozessentwurf. Die nachfolgenden Regeln und Fallbewertungen beschreiben eine fiktive Bankrichtlinie für die Demo; sie sind keine vollständige Abbildung regulatorischer Anforderungen.
 
 ## 1. Umfang und Prozess
 
@@ -18,7 +20,7 @@ Alle Fälle werden unmittelbar nach erfolgreicher Identitätsprüfung und vor de
 6. Bei manuellem Klärungsbedarf oder einem unklaren LLM-Ergebnis folgt eine manuelle Prüfung. Ein durch Regeln festgestellter Prüfbedarf bleibt ebenfalls manuell zu bearbeiten.
 7. Die manuelle Prüfung endet nach der Klärung mit Freigabe oder Ablehnung.
 
-Technische Fehler und ungültige Modellausgaben führen zur manuellen Prüfung. Im BPMN-Entwurf im Projektwurzelverzeichnis sind diese Fehlerpfade nicht eigens modelliert; der Kogito-Dienst setzt sie um (`decision = fehler` → manuelle Prüfung, siehe `kyc-prozess/README.md`).
+Technische Fehler und ungültige Modellausgaben führen zur manuellen Prüfung. Im BPMN-Entwurf im Projektwurzelverzeichnis sind diese Fehlerpfade nicht eigens modelliert; der Prozessdienst setzt sie um (`decision = fehler` → manuelle Prüfung, siehe `kyc-prozess/README.md`).
 
 ## 2. Vorgeschlagene Regeln der Demo
 

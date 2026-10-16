@@ -1,5 +1,7 @@
 # Training und Ergebnisse: Laya Multilingual für die KYC-Demo
 
+*English version: [KYC_Trainingsergebnisse.en.md](KYC_Trainingsergebnisse.en.md)*
+
 Stand: 3. Oktober 2026. Alle Daten sind synthetisch; die Sollbewertungen folgen der fiktiven Demo-Richtlinie.
 
 ## Kurzfassung
@@ -106,7 +108,7 @@ Die unveränderten Testfälle waren bei v1 fehlerfrei. Deshalb fiel die Abkürzu
 
 Demo-Fälle K01–K14 (Prozess mit Regeln R1–R4): v1 11 von 14, v2 13 von 14. v2 behebt K12 (Tim Uphaus) und K13 (Karl Jones) und gibt K14 (Marcin Pankowski, nur Arbeitgeber an der Reeperbahn) weiterhin frei. **K10 bleibt falsch**: Die Abkürzung „Schenkung meiner Eltern“ wurde nicht entkoppelt.
 
-Nachtrag 5. Oktober 2026: Mit K15 (bestätigter Sanktionstreffer, Regel R5) gibt es 15 Demo-Fälle. K15 wird im Prozess durch R5 abgelehnt, bevor Laya aufgerufen wird; das Modell spielt dafür keine Rolle. Ende-zu-Ende über Kogito mit v2: 14 von 15, falsch ist weiterhin nur K10.
+Nachtrag 5. Oktober 2026: Mit K15 (bestätigter Sanktionstreffer, Regel R5) gibt es 15 Demo-Fälle. K15 wird im Prozess durch R5 abgelehnt, bevor Laya aufgerufen wird; das Modell spielt dafür keine Rolle. Ende-zu-Ende mit v2 (zuerst über Kogito, jetzt über CIB seven): 14 von 15, falsch ist weiterhin nur K10.
 
 Die Lehre für den Vortrag: Ein fehlerfreier Test auf vorlagenbasierten Daten beweist wenig. Gezielte Gegenproben, die genau ein Merkmal ändern, zeigen, worauf das Modell tatsächlich reagiert. Entkoppelte Trainingsdaten beheben eine Abkürzung, aber nur die, die man gefunden hat.
 
@@ -134,7 +136,7 @@ Die Lehre für den Vortrag: Ein fehlerfreier Test auf vorlagenbasierten Daten be
 | `laya_kyc/kyc_data.py` | Eingabedarstellung, Richtlinientext, Frage, Abschneideprüfung |
 | `laya_kyc/kyc_train.py` | Training auf MPS |
 | `laya_kyc/kyc_evaluate.py` | Auswertung je Split, mit Gegenprobe über die Laya-API |
-| `laya_kyc/kyc_demo.py`, `laya_kyc/demo_cases.py` | Demo ohne Kogito, Fälle K01–K15 (K15: Ablehnung durch R5) |
+| `laya_kyc/kyc_demo.py`, `laya_kyc/demo_cases.py` | Demo ohne Prozess-Engine, Fälle K01–K15 (K15: Ablehnung durch R5) |
 | `laya_kyc/laya_service.py` | REST-Dienst für den Prozess (`POST /assessment`) |
 | `laya_kyc/ergebnisse/` | Kennzahlen und Einzelvorhersagen je Modell und Split |
 

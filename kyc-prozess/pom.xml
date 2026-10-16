@@ -3,33 +3,31 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.5.14</version>
+    <relativePath/>
+  </parent>
+
   <groupId>de.piu</groupId>
   <artifactId>kyc-prozess</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <name>KYC-Prüfprozess (Kogito)</name>
+  <name>KYC-Prüfprozess (CIB seven)</name>
   <description>Ausführbarer KYC-Prüfprozess: DMN-Regeln, Laya-Bewertung und manuelle Prüfung</description>
 
   <properties>
-    <maven.compiler.release>21</maven.compiler.release>
+    <java.version>21</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <quarkus.platform.version>3.27.2</quarkus.platform.version>
-    <kogito.version>10.2.0</kogito.version>
-    <surefire.version>3.5.4</surefire.version>
+    <cibseven.version>2.2.0</cibseven.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-bom</artifactId>
-        <version>${quarkus.platform.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.kie.kogito</groupId>
-        <artifactId>kogito-bom</artifactId>
-        <version>${kogito.version}</version>
+        <groupId>org.cibseven.bpm</groupId>
+        <artifactId>cibseven-bom</artifactId>
+        <version>${cibseven.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -37,46 +35,45 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- Prozesse (BPMN) und Entscheidungen (DMN) -->
+    <!-- Prozess-Engine (BPMN, DMN), REST-API /engine-rest und Webapps Cockpit, Tasklist, Admin -->
     <dependency>
-      <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-with-drools-quarkus</artifactId>
+      <groupId>org.cibseven.bpm.springboot</groupId>
+      <artifactId>cibseven-bpm-spring-boot-starter-rest</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.drools</groupId>
-      <artifactId>drools-quarkus-decisions</artifactId>
+      <groupId>org.cibseven.bpm.springboot</groupId>
+      <artifactId>cibseven-bpm-spring-boot-starter-webapp</artifactId>
+    </dependency>
+    <!-- Prozessvariablen (Antrag, Laya-Ergebnis) als JSON statt Java-Serialisierung -->
+    <dependency>
+      <groupId>org.cibseven.bpm</groupId>
+      <artifactId>cibseven-engine-plugin-spin</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.kie</groupId>
-      <artifactId>kie-addons-quarkus-process-management</artifactId>
-    </dependency>
-
-    <!-- REST, REST-Client für den Laya-Dienst, OpenAPI, Health -->
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-rest-jackson</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-rest-client-jackson</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-openapi</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-health</artifactId>
+      <groupId>org.cibseven.spin</groupId>
+      <artifactId>cibseven-spin-dataformat-json-jackson</artifactId>
     </dependency>
 
+    <!-- Eigene REST-Endpunkte, REST-Client für den Laya-Dienst, Health -->
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-junit5</artifactId>
-      <scope>test</scope>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-junit5-mockito</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <!-- Alles im Arbeitsspeicher -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -87,24 +84,14 @@
   </dependencies>
 
   <build>
+    <finalName>kyc-prozess</finalName>
     <plugins>
       <plugin>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-maven-plugin</artifactId>
-        <version>${quarkus.platform.version}</version>
-        <extensions>true</extensions>
-        <executions>
-          <execution>
-            <goals>
-              <goal>build</goal>
-              <goal>generate-code</goal>
-              <goal>generate-code-tests</goal>
-            </goals>
-          </execution>
-        </executions>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <!-- Demo-Fälle K01–K11 aus laya_kyc für das Webinterface bereitstellen (eine Quelle) -->
+        <!-- Demo-Fälle K01–K15 aus laya_kyc für das Webinterface bereitstellen (eine Quelle) -->
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
@@ -126,15 +113,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire.version}</version>
-        <configuration>
-          <systemPropertyVariables>
-            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-          </systemPropertyVariables>
-        </configuration>
       </plugin>
     </plugins>
   </build>

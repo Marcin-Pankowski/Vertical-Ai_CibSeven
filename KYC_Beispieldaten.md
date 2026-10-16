@@ -1,5 +1,7 @@
 # Synthetische KYC-Beispieldaten nach erfolgreicher Identitätsprüfung
 
+*English version: [KYC_Beispieldaten.en.md](KYC_Beispieldaten.en.md)*
+
 Voraussetzung für alle Datensätze: Die Identitätsprüfung des Kunden ist erfolgreich abgeschlossen. Sie findet vor dem betrachteten BPMN-Prozess statt. Alle Namen, Daten und Sachverhalte sind vollständig synthetisch. Alle Fälle werden vor der Kontoanlage geprüft. Es liegen ausschließlich Kundenangaben, Screening-Ergebnisse und gegebenenfalls eingereichte Unterlagen vor. K11 zeigt einen Widerspruch zwischen beantragtem Privatkonto und geplanter geschäftlicher Nutzung.
 
 ## Regeln der Demo

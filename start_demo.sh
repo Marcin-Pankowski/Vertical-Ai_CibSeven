@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Startet Laya-Dienst (Port 8000) und Kogito-Prozessdienst (Port 8080), wartet, bis beide bereit sind,
+# Startet Laya-Dienst (Port 8000) und CIB-seven-Prozessdienst (Port 8080), wartet, bis beide bereit sind,
 # und führt run_demo_cases.py aus. Die Dienste laufen danach weiter (Dashboard im Browser) bis Strg+C.
 #
 #   ./start_demo.sh                      # Demo-Fälle starten, offene Prüfungen bleiben stehen
@@ -12,18 +12,20 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 LOGS="$ROOT/logs"
-JAR="$ROOT/kyc-prozess/target/quarkus-app/quarkus-run.jar"
+# Entpackt gestartet: Aus dem Fat-JAR findet die DMN-Engine ihr Schema nicht, wenn der Pfad Leerzeichen enthält.
+APP="$ROOT/kyc-prozess/target/app"
+JAR="$APP/kyc-prozess.jar"
 mkdir -p "$LOGS"
 
 for port in 8000 8080; do
-  if lsof -ti tcp:$port >/dev/null 2>&1; then
-    echo "Port $port ist schon belegt. Laufenden Dienst beenden oder: lsof -ti tcp:$port | xargs kill" >&2
+  if lsof -ti tcp:$port -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "Port $port ist schon belegt. Laufenden Dienst beenden oder: lsof -ti tcp:$port -sTCP:LISTEN | xargs kill" >&2
     exit 1
   fi
 done
 
 MODEL="$ROOT/modelle/laya-multilingual-kyc-v2/model.safetensors"
-MODEL_ZIP_URL="https://github.com/Marcin-Pankowski/BPMN-Vertival-AI/releases/download/modelle/laya-multilingual-kyc-v2.zip"
+MODEL_ZIP_URL="https://github.com/Marcin-Pankowski/Vertical-Ai_CibSeven/releases/download/modelle/laya-multilingual-kyc-v2.zip"
 if [[ ! -f "$MODEL" ]]; then
   echo "Lade Modell v2 aus dem GitHub Release (ca. 600 MB, einmalig) …"
   curl -fL --progress-bar -o "$ROOT/modelle-v2.zip" "$MODEL_ZIP_URL"
@@ -42,6 +44,8 @@ fi
 if [[ "${BUILD:-0}" == "1" || ! -f "$JAR" ]]; then
   echo "Baue Prozessdienst …"
   (cd "$ROOT/kyc-prozess" && mvn -q package)
+  rm -rf "$APP"
+  java -Djarmode=tools -jar "$ROOT/kyc-prozess/target/kyc-prozess.jar" extract --destination "$APP" >/dev/null
 fi
 
 PIDS=()
@@ -56,8 +60,8 @@ echo "Starte Laya-Dienst (Log: logs/laya.log) …"
 (cd "$ROOT/laya_kyc" && exec "$ROOT/.venv/bin/uvicorn" laya_service:app --port 8000) >"$LOGS/laya.log" 2>&1 &
 PIDS+=($!)
 
-echo "Starte Prozessdienst (Log: logs/kogito.log) …"
-(cd "$ROOT/kyc-prozess" && exec java -jar "$JAR") >"$LOGS/kogito.log" 2>&1 &
+echo "Starte Prozessdienst (Log: logs/cibseven.log) …"
+(cd "$ROOT/kyc-prozess" && exec java -jar "$JAR") >"$LOGS/cibseven.log" 2>&1 &
 PIDS+=($!)
 
 wait_for() {  # name url log
@@ -72,7 +76,7 @@ wait_for() {  # name url log
   echo "✗ Zeitüberschreitung, siehe $3"; exit 1
 }
 wait_for "Laya" http://localhost:8000/health "$LOGS/laya.log"
-wait_for "Kogito" http://localhost:8080/q/health/ready "$LOGS/kogito.log"
+wait_for "CIB seven" http://localhost:8080/actuator/health/readiness "$LOGS/cibseven.log"
 
 if [[ "${NO_CASES:-0}" != "1" ]]; then
   echo
@@ -81,6 +85,7 @@ fi
 
 echo
 echo "Weboberfläche: http://localhost:8080   (Dashboard: http://localhost:8080/#dashboard)"
+echo "CIB seven:     http://localhost:8080/webapp/   (Login demo / demo, Prüferin anna / anna)"
 echo "Dienste laufen weiter. Beenden mit Strg+C."
 open http://localhost:8080/#dashboard 2>/dev/null || true
 wait

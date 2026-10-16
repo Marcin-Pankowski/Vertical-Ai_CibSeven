@@ -1,5 +1,7 @@
 # Modellauswahl für die KYC-Demo
 
+*English version: [KYC_Modellauswahl.en.md](KYC_Modellauswahl.en.md)*
+
 Stand: 3. Oktober 2026.
 
 Wir wählen **convaiinnovations/laya-multilingual** für die Entscheidung über manuellen Prüfbedarf. Die vorgesehene Hardware ist der vom Nutzer angegebene **Mac M1 mit 64 GB gemeinsamem Arbeitsspeicher**. Das lokale Training wurde mit **PyTorch MPS** durchgeführt (Apple M1 Max, 64 GB): 3 Epochen in 97,6 Minuten bei ca. 9,5 GB Speicher. Durchführung, Ergebnisse und Grenzen stehen in KYC_Trainingsergebnisse.md.

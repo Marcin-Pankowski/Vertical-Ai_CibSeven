@@ -1,5 +1,7 @@
 # Verwendung der synthetischen KYC-Trainingsdaten
 
+*English version: [KYC_Trainingsdaten_README.en.md](KYC_Trainingsdaten_README.en.md)*
+
 Die Datei KYC_Trainingsdaten_5000.json enthält genau 5.000 unterschiedliche synthetische Kundenprofile zur Prüfung nach erfolgreicher Identifizierung und vor Kontoanlage. Sie dient dem geplanten KYC-Modellbeispiel. Grundlage sind Antragsdaten, Selbstauskünfte, synthetische Screening-Ergebnisse und gegebenenfalls eingereichte Unterlagenauszüge. Als Entscheidungsmodell wurde Laya Multilingual für ein lokales Training auf einem Mac M1 mit 64 GB RAM ausgewählt. Trainingsverfahren und Grenzen stehen in KYC_Modellauswahl.md. Das Training wurde am 3. Oktober 2026 ausgeführt; Ergebnisse stehen in KYC_Trainingsergebnisse.md.
 
 ## Dateien

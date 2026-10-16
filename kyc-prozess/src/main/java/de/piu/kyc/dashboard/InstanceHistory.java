@@ -8,20 +8,17 @@ import java.util.Map;
 
 import de.piu.kyc.LlmResult;
 
-/** Verlauf einer Prozessinstanz für das Dashboard; bleibt nach Abschluss im Speicher. */
+/** Verlauf einer Prozessinstanz für das Dashboard, aufgebaut aus der Historie der Engine. */
 public class InstanceHistory {
 
     public static final String STATUS_ACTIVE = "active";
 
     /** Ein durchlaufener BPMN-Knoten. {@code left == null} heißt: Instanz wartet hier. */
     public record Step(String nodeId, String name, Instant entered, Instant left) {
-        Step leave(Instant time) {
-            return new Step(nodeId, name, entered, time);
-        }
     }
 
     public String id;
-    /** active, completed, aborted oder error */
+    /** active, completed, aborted oder suspended */
     public String status = STATUS_ACTIVE;
     public Instant start;
     public Instant end;
@@ -34,6 +31,8 @@ public class InstanceHistory {
     public LlmResult llmResult;
     public String manualDecision;
     public String manualComment;
+    /** Name des Knotens, an dem eine laufende Instanz wartet */
+    public String waitingAt;
     public final List<Step> steps = new ArrayList<>();
 
     /** Kurzfassung für die Instanzliste, ohne Antrag und Schritte. */
@@ -49,9 +48,7 @@ public class InstanceHistory {
         m.put("triggeredRules", triggeredRules);
         m.put("llmDecision", llmResult == null ? null : llmResult.getDecision());
         m.put("manualDecision", manualDecision);
-        m.put("waitingAt", STATUS_ACTIVE.equals(status)
-                ? steps.stream().filter(s -> s.left() == null).map(Step::name).findFirst().orElse(null)
-                : null);
+        m.put("waitingAt", waitingAt);
         return m;
     }
 }

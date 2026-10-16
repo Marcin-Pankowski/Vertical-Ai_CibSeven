@@ -1,18 +1,20 @@
 # Quickstart: KYC-Demo starten
 
-`start_demo.sh` startet den Laya-Dienst und den Kogito-Prozessdienst, spielt die Demo-Fälle K01–K15 ein und öffnet das Dashboard. Die Dienste laufen weiter, bis du sie mit Strg+C beendest.
+*English version: [Quickstart.en.md](Quickstart.en.md)*
+
+`start_demo.sh` startet den Laya-Dienst und den CIB-seven-Prozessdienst, spielt die Demo-Fälle K01–K15 ein und öffnet das Dashboard. Die Dienste laufen weiter, bis du sie mit Strg+C beendest.
 
 ## Voraussetzungen
 
 - Python 3.12 oder neuer; die Umgebung `.venv/` legt das Skript beim ersten Start selbst aus `requirements.txt` an
 - Java 21 und Maven (beim ersten Start wird der Prozessdienst gebaut)
 - Modell `modelle/laya-multilingual-kyc-v2/`; fehlt es, lädt das Skript es beim ersten Start als ZIP aus dem GitHub Release `modelle` (ca. 600 MB)
-- Ports 8000 (Laya) und 8080 (Kogito) frei
+- Ports 8000 (Laya) und 8080 (CIB seven) frei
 
 ## Starten
 
 ```bash
-cd "/Users/mp/Documents/VSC-Projekte/Vorträge/Vertical AI"
+cd Vertical-Ai_CibSeven    # bzw. der Projektordner
 ./start_demo.sh
 ```
 
@@ -21,7 +23,7 @@ Ablauf:
 1. Fehlen Modell oder `.venv/`, werden sie geladen bzw. angelegt (einmalig, einige Minuten).
 2. Fehlt der Build des Prozessdienstes, baut das Skript ihn zuerst (`mvn package` mit Tests, ca. 1 Minute).
 3. Laya lädt das Modell. Das dauert etwa 40 Sekunden, das Skript zeigt so lange Punkte an.
-4. Kogito ist nach wenigen Sekunden bereit.
+4. CIB seven ist nach etwa 10 Sekunden bereit.
 5. Die Fälle K01–K15 werden gestartet, je eine Zeile pro Fall.
 6. Der Browser öffnet das Dashboard unter http://localhost:8080/#dashboard.
 7. Das Terminal wartet. **Offen lassen**, solange die Demo läuft.
@@ -58,7 +60,20 @@ http://localhost:8080 hat drei Bereiche:
 
 **Manuelle Prüfung**: Offene Aufgaben der Gruppe `kyc-reviewers` mit Antrag, Regeln und Laya-Ergebnis. Kommentar eintragen, dann „Freigeben“ oder „Ablehnen“.
 
-**Dashboard**: Kennzahlen, Instanzliste (aktualisiert alle 2 Sekunden) und BPMN-Diagramm der gewählten Instanz: durchlaufene Schritte grün, wartender Schritt orange, Badges mit DMN- und Laya-Ergebnis, Zeitleiste. „Leeren“ löscht die Liste.
+**Dashboard**: Kennzahlen, Instanzliste (aktualisiert alle 2 Sekunden) und BPMN-Diagramm der gewählten Instanz: durchlaufene Schritte grün, wartender Schritt orange, Badges mit DMN- und Laya-Ergebnis, Zeitleiste. „Leeren“ blendet die bisherigen Instanzen aus; in der Historie der Engine bleiben sie erhalten.
+
+## Oberflächen von CIB seven
+
+Dieselben Instanzen und Aufgaben sind auch in den Werkzeugen der Engine sichtbar:
+
+| Adresse | Inhalt | Login |
+| --- | --- | --- |
+| http://localhost:8080/webapp/ | CIB seven Webclient: Prozesse, Aufgaben, Entscheidungen | `demo` / `demo` |
+| http://localhost:8080/camunda/app/cockpit/ | Cockpit: laufende und beendete Instanzen, DMN-Auswertungen mit Trefferzeilen | `demo` / `demo` |
+| http://localhost:8080/camunda/app/tasklist/ | Tasklist: manuelle Prüfung mit Formular (Entscheidung, Kommentar) | `anna` / `anna` (Gruppe `kyc-reviewers`) |
+| http://localhost:8080/engine-rest/ | REST-API der Engine | – |
+
+Eine in der Tasklist entschiedene Prüfung erscheint sofort im Dashboard der eigenen Oberfläche und umgekehrt.
 
 ## Vorschlag für die Live-Demo
 
@@ -81,10 +96,10 @@ Strg+C im Terminal von `start_demo.sh`. Das Skript beendet beide Dienste. Der Br
 
 | Meldung | Lösung |
 | --- | --- |
-| `Port 8000 ist schon belegt` (oder 8080) | Alte Instanz läuft noch: `lsof -ti tcp:8000 \| xargs kill` (bzw. 8080) |
+| `Port 8000 ist schon belegt` (oder 8080) | Alte Instanz läuft noch: `lsof -ti tcp:8000 -sTCP:LISTEN \| xargs kill` (bzw. 8080) |
 | Download des Modells schlägt fehl | ZIP von der Release-Seite `modelle` laden und im Projektordner entpacken (`unzip laya-multilingual-kyc-v2.zip`) |
 | `Warte auf Laya … ✗ abgebrochen` | `logs/laya.log` ansehen |
-| `Warte auf Kogito … ✗` | `logs/kogito.log` ansehen; Java-Version prüfen (`java -version`, nötig ist 21) |
+| `Warte auf CIB seven … ✗` | `logs/cibseven.log` ansehen; Java-Version prüfen (`java -version`, nötig ist 21) |
 | Laya-Ergebnis `fehler` in der Oberfläche | Laya-Dienst nicht erreichbar; der Fall geht korrekt in die manuelle Prüfung |
 | Änderungen an DMN/BPMN/Oberfläche nicht sichtbar | `BUILD=1 ./start_demo.sh` |
 

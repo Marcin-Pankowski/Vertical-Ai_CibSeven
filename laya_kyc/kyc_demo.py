@@ -1,4 +1,4 @@
-"""Live-Demo ohne Kogito: BPMN-Pfad Regeln → Laya → Freigabe, manuelle Prüfung oder Ablehnung für K01–K15.
+"""Live-Demo ohne Prozess-Engine: BPMN-Pfad Regeln → Laya → Freigabe, manuelle Prüfung oder Ablehnung für K01–K15.
 
 Beispiele:
     python kyc_demo.py                       # angepasstes Modell, alle Demo-Fälle
